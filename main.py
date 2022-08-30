@@ -14,12 +14,12 @@ header = {'Authorization': DEVMAN_AUTH_TOKEN}
 
 bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 
-devman_api_response = None
+review_result = None
 timestamp = ''
 
 while True:
-    if devman_api_response:
-        timestamp = devman_api_response['new_attempts'][0]['timestamp']
+    if review_result:
+        timestamp = review_result['new_attempts'][0]['timestamp']
     try:
         response = requests.get(
             'https://dvmn.org/api/long_polling/',
@@ -28,10 +28,10 @@ while True:
             timeout=60,
         )
         response.raise_for_status()
-        devman_api_response = response.json()
-        lesson_title = devman_api_response['new_attempts'][0]['lesson_title']
-        lesson_url = devman_api_response['new_attempts'][0]['lesson_url']
-        is_negative = devman_api_response['new_attempts'][0]['is_negative']
+        review_result = response.json()
+        lesson_title = review_result['new_attempts'][0]['lesson_title']
+        lesson_url = review_result['new_attempts'][0]['lesson_url']
+        is_negative = review_result['new_attempts'][0]['is_negative']
         if is_negative:
             bot.send_message(chat_id=chat_id,
                              text=f'Преподаватель проверил работу '
