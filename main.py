@@ -31,7 +31,7 @@ if __name__ == '__main__':
                 'https://dvmn.org/api/long_polling/',
                 params={'timestamp': timestamp},
                 headers=header,
-                timeout=60,
+                timeout=86400,
             )
             response.raise_for_status()
             review_result = response.json()
