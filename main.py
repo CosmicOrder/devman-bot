@@ -21,7 +21,11 @@ if __name__ == '__main__':
 
     while True:
         if review_result:
-            timestamp = review_result['new_attempts'][0]['timestamp']
+            if review_result['new_attempts']:
+                timestamp = review_result['new_attempts'][0]['timestamp']
+            else:
+                timestamp = review_result['timestamp_to_request']
+
         try:
             response = requests.get(
                 'https://dvmn.org/api/long_polling/',
