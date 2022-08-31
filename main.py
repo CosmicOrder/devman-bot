@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     while True:
         if review_result:
-            if review_result['new_attempts']:
+            if review_result.get('new_attempts'):
                 timestamp = review_result['new_attempts'][0]['timestamp']
             else:
                 timestamp = review_result['timestamp_to_request']
