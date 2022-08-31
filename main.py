@@ -1,4 +1,5 @@
 import os
+import textwrap
 import time
 
 import requests
@@ -33,17 +34,24 @@ if __name__ == '__main__':
             lesson_title = review_result['new_attempts'][0]['lesson_title']
             lesson_url = review_result['new_attempts'][0]['lesson_url']
             is_negative = review_result['new_attempts'][0]['is_negative']
+
+            negative_reply = textwrap.dedent(f'''
+            Преподаватель проверил работу «{lesson_title}» {lesson_url}
+
+            К сожалению в работе нашлись ошибки.
+            ''')
+            positive_reply = textwrap.dedent(f'''
+            Преподаватель проверил работу «{lesson_title}» {lesson_url}
+
+            Преподавателю всё понравилось, можно приступать к следующему уроку!
+            ''')
+
             if is_negative:
                 bot.send_message(chat_id=chat_id,
-                                 text=f'Преподаватель проверил работу '
-                                      f'«{lesson_title}» {lesson_url}\n\n'
-                                      f'К сожалению в работе нашлись ошибки.')
+                                 text=negative_reply)
             else:
                 bot.send_message(chat_id=chat_id,
-                                 text=f'Преподаватель проверил работу '
-                                      f'«{lesson_title}» {lesson_url}\n\n'
-                                      f'Преподавателю всё понравилось, можно '
-                                      f'приступать к следующему уроку!')
+                                 text=positive_reply)
 
         except requests.exceptions.ReadTimeout:
             print('Время ожидание вышло. Посылаю ещё один запрос')
