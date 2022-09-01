@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     while True:
         if review_result:
-            if review_result.get('new_attempts'):
+            if review_result.get('status') == 'found':
                 timestamp = review_result['new_attempts'][0]['timestamp']
             else:
                 timestamp = review_result['timestamp_to_request']
@@ -35,9 +35,13 @@ if __name__ == '__main__':
             )
             response.raise_for_status()
             review_result = response.json()
-            lesson_title = review_result['new_attempts'][0]['lesson_title']
-            lesson_url = review_result['new_attempts'][0]['lesson_url']
-            is_negative = review_result['new_attempts'][0]['is_negative']
+            if review_result.get('status') == 'found':
+                timestamp = review_result['new_attempts'][0]['timestamp']
+                lesson_title = review_result['new_attempts'][0]['lesson_title']
+                lesson_url = review_result['new_attempts'][0]['lesson_url']
+                is_negative = review_result['new_attempts'][0]['is_negative']
+            else:
+                continue
 
             negative_reply = textwrap.dedent(f'''
             Преподаватель проверил работу «{lesson_title}» {lesson_url}
