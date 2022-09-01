@@ -62,7 +62,7 @@ if __name__ == '__main__':
                                  text=positive_reply)
 
         except requests.exceptions.ReadTimeout:
-            print('Время ожидание вышло. Посылаю ещё один запрос')
+            continue
         except requests.exceptions.ConnectionError:
             print('Соединение с Интернетом не установлено')
             time.sleep(5)
