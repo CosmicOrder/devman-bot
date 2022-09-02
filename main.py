@@ -16,16 +16,9 @@ if __name__ == '__main__':
 
     bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 
-    review_result = None
     timestamp = ''
 
     while True:
-        if review_result:
-            if review_result.get('status') == 'found':
-                timestamp = review_result['new_attempts'][0]['timestamp']
-            else:
-                timestamp = review_result['timestamp_to_request']
-
         try:
             response = requests.get(
                 'https://dvmn.org/api/long_polling/',
@@ -40,26 +33,26 @@ if __name__ == '__main__':
                 lesson_title = review_result['new_attempts'][0]['lesson_title']
                 lesson_url = review_result['new_attempts'][0]['lesson_url']
                 is_negative = review_result['new_attempts'][0]['is_negative']
+
+                negative_reply = textwrap.dedent(f'''
+                            Преподаватель проверил работу «{lesson_title}» {lesson_url}
+
+                            К сожалению в работе нашлись ошибки.
+                            ''')
+                positive_reply = textwrap.dedent(f'''
+                            Преподаватель проверил работу «{lesson_title}» {lesson_url}
+
+                            Преподавателю всё понравилось, можно приступать к следующему уроку!
+                            ''')
+
+                if is_negative:
+                    bot.send_message(chat_id=chat_id,
+                                     text=negative_reply)
+                else:
+                    bot.send_message(chat_id=chat_id,
+                                     text=positive_reply)
             else:
-                continue
-
-            negative_reply = textwrap.dedent(f'''
-            Преподаватель проверил работу «{lesson_title}» {lesson_url}
-
-            К сожалению в работе нашлись ошибки.
-            ''')
-            positive_reply = textwrap.dedent(f'''
-            Преподаватель проверил работу «{lesson_title}» {lesson_url}
-
-            Преподавателю всё понравилось, можно приступать к следующему уроку!
-            ''')
-
-            if is_negative:
-                bot.send_message(chat_id=chat_id,
-                                 text=negative_reply)
-            else:
-                bot.send_message(chat_id=chat_id,
-                                 text=positive_reply)
+                timestamp = review_result['timestamp_to_request']
 
         except requests.exceptions.ReadTimeout:
             continue
