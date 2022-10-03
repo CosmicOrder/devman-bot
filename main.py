@@ -1,3 +1,4 @@
+import logging
 import os
 import textwrap
 import time
@@ -5,6 +6,8 @@ import time
 import requests
 import telegram
 from dotenv import load_dotenv
+
+logging.warning("Бот запущен")
 
 if __name__ == '__main__':
     load_dotenv()
