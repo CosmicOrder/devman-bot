@@ -10,17 +10,6 @@ from dotenv import load_dotenv
 from tg_logs_handler import TelegramLogsHandler
 
 
-def fetch_review_result(timestamp):
-    response = requests.get(
-        'https://dvmn.org/api/long_polling/',
-        params={'timestamp': timestamp},
-        headers=header,
-        timeout=86400,
-    )
-    response.raise_for_status()
-    return response.json()
-
-
 def create_logger(bot, chat_id):
     logger = logging.getLogger('Logger')
     logger.setLevel(logging.WARNING)
@@ -45,7 +34,14 @@ if __name__ == '__main__':
 
     while True:
         try:
-            review_result = fetch_review_result(timestamp)
+            response = requests.get(
+                'https://dvmn.org/api/long_polling/',
+                params={'timestamp': timestamp},
+                headers=header,
+                timeout=86400,
+            )
+            response.raise_for_status()
+            review_result = response.json()
 
             if review_result.get('status') == 'found':
                 timestamp = review_result['new_attempts'][0]['timestamp']
