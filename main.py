@@ -21,6 +21,13 @@ def fetch_review_result(timestamp):
     return response.json()
 
 
+def create_logger(bot, chat_id):
+    logger = logging.getLogger('Logger')
+    logger.setLevel(logging.WARNING)
+    logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    return logger
+
+
 if __name__ == '__main__':
     load_dotenv()
 
@@ -30,12 +37,9 @@ if __name__ == '__main__':
     header = {'Authorization': devman_auth_token}
 
     bot = telegram.Bot(token=tg_bot_token)
+    logger = create_logger(bot, chat_id)
 
-    logger = logging.getLogger('Logger')
-    logger.setLevel(logging.WARNING)
-    logger.addHandler(TelegramLogsHandler(bot, chat_id))
     logger.warning("Бот запущен")
-    logger.error("division by zero")
 
     timestamp = ''
 
@@ -67,7 +71,8 @@ if __name__ == '__main__':
             else:
                 timestamp = review_result['timestamp_to_request']
 
-        except requests.exceptions.ReadTimeout:
+        except requests.exceptions.ReadTimeout as ex:
+            logger.exception(ex)
             continue
         except requests.exceptions.ConnectionError:
             print('Соединение с Интернетом не установлено')
