@@ -7,30 +7,42 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-logging.warning("Бот запущен")
+from tg_logs_handler import TelegramLogsHandler
+
+
+def fetch_review_result(timestamp):
+    response = requests.get(
+        'https://dvmn.org/api/long_polling/',
+        params={'timestamp': timestamp},
+        headers=header,
+        timeout=86400,
+    )
+    response.raise_for_status()
+    return response.json()
+
 
 if __name__ == '__main__':
     load_dotenv()
 
-    TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+    tg_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('CHAT_ID')
-    DEVMAN_AUTH_TOKEN = os.getenv('DEVMAN_AUTH_TOKEN')
-    header = {'Authorization': DEVMAN_AUTH_TOKEN}
+    devman_auth_token = os.getenv('DEVMAN_AUTH_TOKEN')
+    header = {'Authorization': devman_auth_token}
 
-    bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
+    bot = telegram.Bot(token=tg_bot_token)
+
+    logger = logging.getLogger('Logger')
+    logger.setLevel(logging.WARNING)
+    logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    logger.warning("Бот запущен")
+    logger.error("division by zero")
 
     timestamp = ''
 
     while True:
         try:
-            response = requests.get(
-                'https://dvmn.org/api/long_polling/',
-                params={'timestamp': timestamp},
-                headers=header,
-                timeout=86400,
-            )
-            response.raise_for_status()
-            review_result = response.json()
+            review_result = fetch_review_result(timestamp)
+
             if review_result.get('status') == 'found':
                 timestamp = review_result['new_attempts'][0]['timestamp']
                 lesson_title = review_result['new_attempts'][0]['lesson_title']
@@ -49,11 +61,9 @@ if __name__ == '__main__':
                             ''')
 
                 if is_negative:
-                    bot.send_message(chat_id=chat_id,
-                                     text=negative_reply)
+                    bot.send_message(chat_id=chat_id, text=negative_reply)
                 else:
-                    bot.send_message(chat_id=chat_id,
-                                     text=positive_reply)
+                    bot.send_message(chat_id=chat_id, text=positive_reply)
             else:
                 timestamp = review_result['timestamp_to_request']
 
