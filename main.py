@@ -9,16 +9,11 @@ from dotenv import load_dotenv
 
 from tg_logs_handler import TelegramLogsHandler
 
-
-def create_logger(bot, chat_id):
-    logger = logging.getLogger('Logger')
-    logger.setLevel(logging.WARNING)
-    logger.addHandler(TelegramLogsHandler(bot, chat_id))
-    return logger
-
+logger = logging.getLogger(__file__)
 
 if __name__ == '__main__':
     load_dotenv()
+    logger.setLevel(logging.WARNING)
 
     tg_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('CHAT_ID')
@@ -26,7 +21,8 @@ if __name__ == '__main__':
     header = {'Authorization': devman_auth_token}
 
     bot = telegram.Bot(token=tg_bot_token)
-    logger = create_logger(bot, chat_id)
+
+    logger.addHandler(TelegramLogsHandler(bot, chat_id))
 
     logger.warning("Бот запущен")
 
